@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: hospital-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hospital_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Hospital AI Assistant Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hospital-ai-assistant
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # Database Configuration
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: hospital_db
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-postgres123}
+
+      # AI Model API Keys (from .env file)
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+
+      # Optional
+      LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY:-}
+      LANGCHAIN_TRACING_V2: ${LANGCHAIN_TRACING_V2:-false}
+      LANGCHAIN_PROJECT: ${LANGCHAIN_PROJECT:-hospital-ai-assistant}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      # Mount source code for development (comment out for production)
+      - ./src:/app/src
+      - ./public:/app/public
+    command: sh -c "sleep 10 && npm run setup-db && npm start"
+
+volumes:
+  postgres_data:
+    driver: local

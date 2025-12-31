@@ -1,0 +1,47 @@
+# Dependencies (will be installed in container)
+node_modules
+npm-debug.log
+
+# Environment files (use docker-compose env vars)
+.env
+.env.local
+.env.*.local
+
+# Git files
+.git
+.gitignore
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files (not needed inside container)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation (not needed at runtime)
+DOCKER.md
+DOCKER_SETUP_COMPLETE.md
+AI_MODELS.md
+
+# Deployment scripts (not needed at runtime)
+deploy-docker.sh
+deploy-docker.bat
+setup-env.bat
+create-database.ps1
+
+# Logs
+logs
+*.log
+
+# Testing
+coverage
+.nyc_output
+test
